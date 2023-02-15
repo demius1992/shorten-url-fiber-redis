@@ -39,10 +39,11 @@ func ShortenURL(c *fiber.Ctx) error {
 	// implement rate limiting
 	// everytime a user queries, check if the IP is already in database,
 	// if yes, decrement the calls remaining by one, else add the IP to database
-	// with expiry of `30mins`. So in this case the user will be able to send 10
+	// with expiry of `30 mins`. So in this case the user will be able to send 10
 	// requests every 30 minutes
 	r2 := database.CreateClient(1)
 	defer r2.Close()
+
 	val, err := r2.Get(database.Ctx, c.IP()).Result()
 	if err == redis.Nil {
 		_ = r2.Set(database.Ctx, c.IP(), os.Getenv("API_QUOTA"), 30*60*time.Second).Err() //change the rate_limit_reset here, change `30` to your number
